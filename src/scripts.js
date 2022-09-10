@@ -466,7 +466,7 @@ var isFacebookInitiated = false;
 
 
 function onCl() {
-    scenes.showScene(2);
+    scenes.showScene(1);
     soundGenerator.play(Sound.Type.SINE, 0.0);
 }
 
