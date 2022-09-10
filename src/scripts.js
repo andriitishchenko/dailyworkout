@@ -463,6 +463,7 @@ let ui = null;
 
 
 var isFacebookInitiated = false;
+var isFacebookInjected = false;
 
 
 function onCl() {
@@ -549,6 +550,12 @@ function getScoreImageBase64(score_value = 1) {
 }
 
 function addFBScript() {
+    if (isFacebookInjected) {
+        shareFBuiFeed()
+            // shareFBui();
+        return;
+    }
+
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://connect.facebook.net/en_US/sdk.js';
@@ -565,34 +572,36 @@ function addFBScript() {
             version: 'v14.0'
         })
 
-        shareFBui()
+
+        shareFBuiFeed()
+            // shareFBui()
             // postBlobtoFB()
     };
 }
 
 function shareFBui() {
-
-    // var base64image = getScoreImageBase64(15);
-    let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
-
-    // FB.ui({
-    //     method: 'feed',
-    //     display: 'popup',
-    //     // picture: base64image,
-    //     link: window.location.href,
-
-    //     title: 'Daily Workout', // The same than name in feed method
-    //     picture: window.location.href+"/assets/218.jpg",
-    //     caption: message,
-    //     description: "Join me!",
-    // }, function(response) {
-    //     console.log(response);
-    // });
-
     FB.ui({
         method: 'share',
         href: window.location.href,
     }, function(response) {});
+}
+
+function shareFBuiFeed() {
+    // var base64image = getScoreImageBase64(15);
+    let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
+
+    FB.ui({
+        method: 'feed',
+        display: 'popup',
+        link: window.location.href,
+
+        title: 'Daily Workout', // The same than name in feed method
+        picture: window.location.href + "/assets/218.jpg",
+        caption: message,
+        description: "Join me!",
+    }, function(response) {
+        console.log(response);
+    });
 }
 
 
