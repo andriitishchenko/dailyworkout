@@ -3,27 +3,32 @@
 <html lang="en">
 
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
     <title>Daily Workout</title>
-    <meta name="description" content="">
-    <meta name="author" content="Daily Workout">
+    <meta name="description" content="Daily Workout" />
+    <meta name="author" content="Daily Workout" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="full-screen" content="yes" />
     <meta name="screen-orientation" content="portrait" />
 
 
-    <link rel="icon" href="/favicon.ico">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <link rel="stylesheet" href="styles.css?v=1.0">
+    <link rel="stylesheet" href="styles.css?v=1.0" />
+
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
+    <script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
+
+
     <script src="scripts.js"></script>
     <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script> -->
-    <script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
+
 </head>
 
 <body>
@@ -49,7 +54,7 @@
                 <div id="action_demo"></div>
             </div>
             <div>
-                <div id="status" class="header_text">Ready</div>
+                <div id="status" class="header_text">Get ready for</div>
                 <div id="action_title" class="header_text">Jumps</div>
             </div>
             <div id="progress" class="centered"></div>
@@ -61,23 +66,30 @@
         <div class="content">
             <div onclick="onCl()" class="header_text scene_title">Start</div>
             <div class="centered" onclick="onCl()">
-                <div class="progress-spinner"></div>
+                <!-- <div class="progress-spinner"></div>
                 <div class="action_demo">
                     <div style="background-image:url('img/1-0.png');"></div>
-                </div>
+                </div> -->
             </div>
-            <div class="header_text scene_title">Day: <span id="score_label"></span> </div>
+            <div class="header_text scene_title"><span id="score_label"></span> days of continuous training</div>
             <div class="header_text scene_title" onclick="onShareFB()">Well done, <span>share</span>!</div>
         </div>
     </div>
 
     <script>
+        var LAST_ACCESS_TIMESTAMP = new Date().getTime();
+        var SCORE = 1;
+        var isBestScore = false;
+
         window.onload = function() {
             // When the window loads, start to initialize the SDK
             FBInstant.initializeAsync().then(function() {
+                // console.log("FBInstant.initializeAsync");
                 FBInstant.startGameAsync().then(function() {
+                    isFacebookInitiated = true;
+                    // console.log("FBInstant.startGameAsync");
 
-                    // Select competitor 
+                    // Select compatitor 
                     // FBInstant.context.chooseAsync().then(function() {
                     //     console.log("CONTEXT = " + FBInstant.context.getID());
                     // });
@@ -86,18 +98,10 @@
                     onLoadFromStorage();
                     onGetRanks();
                 });
-            });
+            }).catch(function(err) {
+                console.error('initializeAsync failed: ' + err.message);
+            });;
         };
-
-
-        // window.fbAsyncInit = function() {
-        //     FB.init({
-        //         appId: '2184426505072200',
-        //         autoLogAppEvents: true,
-        //         xfbml: true,
-        //         version: 'v14.0'
-        //     });
-        // };
 
 
         function rotateAds() {
@@ -109,38 +113,21 @@
         }
 
 
-        const getBase64FromUrl = async(url) => {
-            const data = await fetch(url);
-            const blob = await data.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () => {
-                    const base64data = reader.result;
-                    resolve(base64data);
-                }
-            });
-        }
-
         function onShareFB() {
-            getBase64FromUrl("assets/218.jpg").then((value) => {
-                // let text = `Hey, I've been doing daily workouts for the last ${SCORE} days, join me!`;
-                let text = 'Hey, I have been doing daily workouts for the last ' + SCORE + ' days, join me!';
+            if (isFacebookInitiated) {
+                var base64image = getScoreImageBase64(SCORE);
+                let message = 'Hey, I have been doing daily workouts for the last ' + SCORE + ' days, join me!';
                 FBInstant.shareAsync({
                     intent: 'REQUEST',
-                    image: value,
-                    text: text,
-                    // `Hey, I\'m doing Daily Workouts last ${SCORE} days, join me!`,
-                    data: {
-                        myReplayData: '...'
-                    },
+                    image: base64image,
+                    text: message,
+                    data: {},
                 });
-            });
+            } else {
+                addFBScript();
+            }
         }
 
-        var LAST_ACCESS_TIMESTAMP = new Date().getTime();
-        var SCORE = 1;
-        var isBestScore = false;
 
         function saveToStorage() {
             isBestScore = false;

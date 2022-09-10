@@ -11,8 +11,9 @@ class Sound {
         this.context = new(window.AudioContext || window.webkitAudioContext)();
     }
 
-    play(type, x) {
+    play(type, x, frequency = 440.0) {
         var o = this.context.createOscillator()
+        o.frequency.value = frequency
         var g = this.context.createGain()
         o.connect(g)
         o.type = type
@@ -63,6 +64,15 @@ class Workouts {
         return this.activeItem.images;
     }
 
+    get nextItemTitle() {
+        var index = this.index;
+        index++;
+        if (index == this.list.length) {
+            return null;
+        }
+        return this.list[index].title;
+    }
+
     get isLastItem() {
         return this.index == this.list.length - 1;
     }
@@ -102,7 +112,7 @@ class TimeManager {
 
         this.workDuration = 30;
         this.restDuration = 10;
-        this.readyDuration = 4;
+        this.readyDuration = 3;
 
         this.onReadyStart = onReadyStart
         this.onWorkoutStart = onWorkoutStart
@@ -111,7 +121,7 @@ class TimeManager {
     }
 
     start() {
-
+        clearTimeout(this.timerObj);
         var timout = 0;
         if (this.mode == 0) {
             this.onReadyStart(this.readyDuration);
@@ -122,18 +132,16 @@ class TimeManager {
         } else if (this.mode == 2) {
             this.onRestStart(this.restDuration);
             timout = this.restDuration;
+        } else {
+            this.stop();
+            this.onCompleted();
+            return;
         }
 
-        this.timerObj = window.setTimeout((p) => {
-            clearTimeout(this.timerObj);
-            this.mode += 1;
-            if (this.mode > 2) {
-                this.mode = 0;
-                this.onCompleted();
-                return;
-            }
-            this.start()
+        this.mode++;
 
+        this.timerObj = window.setTimeout((p) => {
+            this.start()
         }, timout * 1000);
     }
 
@@ -171,9 +179,8 @@ class SceneManager {
 
 class UIManager {
     constructor() {
-
+        this.workouts_completed = 0;
         this.isActive = false;
-
         this.timerObj = new TimeManager(
             (p) => {
                 this.onReadyStart(p);
@@ -181,8 +188,8 @@ class UIManager {
                 this.onWorkoutStart(p);
             }, (p) => {
                 this.onRestStart(p);
-            }, (p) => {
-                this.onWorkoutCompleted(p);
+            }, () => {
+                this.onWorkoutCompleted();
             });
 
         this.progress = document.getElementById("progress");
@@ -213,39 +220,71 @@ class UIManager {
     }
 
     onReadyStart(duration) {
-        var i = 0;
-        soundGenerator.play(Sound.Type.SINE, 1.5);
-        let t = setInterval(() => {
-            i++;
-            soundGenerator.play(Sound.Type.SINE, 1.5);
-            if (i == 2) {
-                clearInterval(t);
-            }
-        }, 1000);
-        this.status_label.innerHTML = "Prepare";
         this.displayCountdown(duration, "rgb(225, 194, 94)");
+        // soundGenerator.play(Sound.Type.SINE, 1.5);
+        this.status_label.innerHTML = "Get ready for";
     }
+
     onWorkoutStart(duration) {
         soundGenerator.play(Sound.Type.SQUARE, 1.5);
         this.status_label.innerHTML = "Do";
         this.displayCountdown(duration, "rgb(168, 193, 77)");
         this.startAnimation();
     }
+
     onRestStart(duration) {
         soundGenerator.play(Sound.Type.SAWTOOTH, 1.5);
         this.status_label.innerHTML = "Rest";
         this.displayCountdown(duration, "rgb(209, 169, 203)");
         this.stopAnimation();
         this.layoutRestPose();
+        this.updateNextLabel();
+    }
+
+    onWorkoutCompleted() {
+        this.workouts_completed++;
+        if (!workouts.isLastItem) {
+            workouts.gotoNext();
+            this.timerObj.start();
+
+        } else {
+            console.log("LAST ITEM, Congrats!");
+            workouts.gotoIndex(0);
+            this.displayCountdownStop();
+            scenes.showScene(2);
+        }
+
+        this.updateUI()
     }
 
     displayCountdown(duration, color) {
-        this.drawProgress(0);
-        clearInterval(this.timeCounter);
+        this.displayCountdownStop();
         this.time_label.innerHTML = duration.toString();
         var total = duration;
         this.timeCounter = setInterval(() => {
             total--;
+
+            if (duration == this.timerObj.workDuration) {
+                if (Math.floor(duration / 2) == total) {
+                    soundGenerator.play(Sound.Type.SINE, 1.5, 880);
+                } else if (total < 10) {
+                    soundGenerator.play(Sound.Type.SINE, 1.5, 880);
+                }
+            }
+
+            if (duration == this.timerObj.readyDuration) {
+                if (total < 4) {
+                    soundGenerator.play(Sound.Type.SINE, 1.5, 880);
+                }
+            }
+
+            // if (duration == this.timerObj.restDuration) {
+            //     if (total < 4) {
+            //         soundGenerator.play(Sound.Type.SINE, 1.5, 880);
+            //     }
+            // }
+
+
             this.time_label.innerHTML = total.toString();
             var procent = (duration - total + 1) / duration * 100;
             this.drawProgress(procent, color);
@@ -257,20 +296,7 @@ class UIManager {
         this.drawProgress(0);
     }
 
-    onWorkoutCompleted() {
-        console.log("onWorkoutCompleted");
-        if (!workouts.isLastItem) {
-            workouts.gotoNext();
-            this.timerObj.start();
 
-        } else {
-            workouts.gotoIndex(0);
-            console.log("LAST ITEM, Congrats!");
-            scenes.showScene(2);
-        }
-        clearInterval(this.timeCounter);
-        this.updateUI()
-    }
 
     startAnimation() {
         var active = 0;
@@ -357,6 +383,9 @@ class UIManager {
         this.time_label.innerHTML = "00";
     }
 
+    updateNextLabel() {
+        this.action_title.innerHTML = "<span>next: </span>" + workouts.nextItemTitle;
+    }
 
     drawProgress(progress, color = "rgb(168, 193, 77)") {
         this.spinner_progress.style.background =
@@ -369,6 +398,56 @@ class UIManager {
 
 }
 
+class Score {
+    constructor() {
+        this.history = [];
+        this.score = 1;
+        this.timestamp = new Date().getTime();
+    }
+
+    toJson() {
+        return JSON.stringify({ score: this.score, timestamp: this.timestamp, history: this.history });
+    };
+
+    static fromJson(json) {
+        var data = JSON.parse(json ? json : null);
+        let r = new Score();
+        if (data) {
+            r.score = data.score;
+            r.timestamp = data.timestamp;
+            r.history = data.history;
+        }
+        return r;
+    }
+
+    static fromLocalStorage() {
+        return Score.fromJson(localStorage.gamestats);
+    }
+
+    addtoHistory() {
+        this.history.push(new Date().getTime());
+    }
+
+    updateScore() {
+        let now = new Date().getTime();
+        let dif = Math.round((now - this.timestamp) / (1000 * 60 * 60 * 24));
+        if (dif == 1) {
+            this.score++;
+        } else if (dif > 2) {
+            this.score = 1;
+        }
+
+        this.timestamp = new Date().getTime();
+    }
+
+    save() {
+        localStorage.gamestats = this.toJson();
+    }
+}
+
+
+
+let gameScore = null;
 
 let workouts = new Workouts((i, isfi) => {
     try {
@@ -381,28 +460,178 @@ let workouts = new Workouts((i, isfi) => {
 let soundGenerator = new Sound();
 let scenes = null;
 let ui = null;
+
+
+var isFacebookInitiated = false;
+
+
+function onCl() {
+    scenes.showScene(2);
+    soundGenerator.play(Sound.Type.SINE, 0.0);
+}
+
+function updateScoreLayout() {
+    let score_label = document.getElementById("score_label");
+    score_label.innerHTML = isFacebookInitiated ? SCORE.toString() : gameScore.score.toString();
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
+
+    gameScore = Score.fromLocalStorage();
+
     scenes = new SceneManager(["scene-0", "scene-1", "scene-2"], (scene) => {
         if (scene == "scene-2") {
+            // gameScore.addtoHistory();
+            gameScore.updateScore();
+            gameScore.save();
+
             saveToStorage();
             updateScoreLayout();
             onPostToLeaderboard();
         }
     });
     ui = new UIManager();
+}, false);
 
 
-}, false)
+function getScoreImageBase64(score_value = 1) {
 
-// document.addEventListener('touchend', () => window.audioContext.resume());
+    var canvas = document.createElement('canvas');
+    canvas.id = 'canvasJavascript'
+    canvas.width = 218;
+    canvas.height = 218;
+    canvas.ctx = canvas.getContext("2d");
 
-function onCl() {
-    scenes.showScene(1);
-    soundGenerator.play(Sound.Type.SINE, 0.0);
+    var ox = canvas.width / 2;
+    var oy = canvas.height / 2;
+    var radius = 50;
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgb(220, 220, 210)";
+    // ctx.fillStyle = "rgb(220, 220, 110)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(ox, oy, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgb(168, 193, 77)";
+    ctx.stroke();
+
+    ctx.font = "bold 30px  sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "rgb(175, 175, 65)";
+    ctx.fillText("Daily Workout", ox, oy * 0.2);
+
+
+    ctx.font = "50px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgb(195, 95, 80)";
+    ctx.fillText(score_value, ox, oy);
+
+
+    ctx.font = "20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgb(195, 95, 80)";
+    ctx.fillText("continuous days", ox, oy * 1.7);
+
+
+    var value = canvas.toDataURL();
+    // document.body.appendChild(canvas);
+    // console.log(value);
+    return value;
 }
 
-function updateScoreLayout() {
-    let score_label = document.getElementById("score_label");
+function addFBScript() {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://connect.facebook.net/en_US/sdk.js';
+    script.crossorigin = "anonymous";
+    script.setAttributeNode(document.createAttribute("async"));
+    script.setAttributeNode(document.createAttribute("defer"));
+    document.head.appendChild(script);
 
-    score_label.innerHTML = SCORE.toString();
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId: '2184426505072200',
+            autoLogAppEvents: true,
+            xfbml: true,
+            version: 'v14.0'
+        })
+
+        shareFBui()
+            // postBlobtoFB()
+    };
+}
+
+function shareFBui() {
+
+    // var base64image = getScoreImageBase64(15);
+    let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
+
+    // FB.ui({
+    //     method: 'feed',
+    //     display: 'popup',
+    //     // picture: base64image,
+    //     link: window.location.href,
+
+    //     title: 'Daily Workout', // The same than name in feed method
+    //     picture: window.location.href+"/assets/218.jpg",
+    //     caption: message,
+    //     description: "Join me!",
+    // }, function(response) {
+    //     console.log(response);
+    // });
+
+    FB.ui({
+        method: 'share',
+        href: window.location.href,
+    }, function(response) {});
+}
+
+
+// const getBase64FromUrl = async(url) => {
+//     const data = await fetch(url);
+//     const blob = await data.blob();
+//     return new Promise((resolve) => {
+//         const reader = new FileReader();
+//         reader.readAsDataURL(blob);
+//         reader.onloadend = () => {
+//             const base64data = reader.result;
+//             resolve(base64data);
+//         }
+//     });
+// }
+
+
+function postBlobtoFB() {
+    var data = getScoreImageBase64(15);
+    var blob;
+    try {
+        var byteString = atob(data.split(',')[1]);
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        blob = new Blob([ab], { type: 'image/png' });
+    } catch (e) {
+        console.log(e);
+    }
+    var fd = new FormData();
+    fd.append("source", blob);
+    fd.append("message", "Photo Text");
+    FB.login(function() {
+        var auth = FB.getAuthResponse();
+
+        var request = new XMLHttpRequest();
+        request.open("POST", "https://graph.facebook.com/" + auth.userID + "/photos?access_token=" + auth.accessToken);
+        request.send(fd);
+    }, { scope: 'publish_actions' });
 }
