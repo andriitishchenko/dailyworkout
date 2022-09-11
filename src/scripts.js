@@ -417,13 +417,15 @@ class Score {
     };
 
     static fromJson(json) {
-        var data = JSON.parse(json);
         let r = new Score();
-        if (data) {
-            r.score = data.score || 0;
-            r.timestamp = data.timestamp || new Date().getTime();
-            r.history = data.history || [];
-            r.record = data.record ?? 0;
+        if( json ){
+            let data = JSON.parse(json);
+            if (data) {
+                r.score = data.score || 0;
+                r.timestamp = data.timestamp || new Date().getTime();
+                r.history = data.history || [];
+                r.record = data.record ?? 0;
+            }
         }
         return r;
     }
