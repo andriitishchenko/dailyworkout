@@ -441,11 +441,12 @@ class Score {
     updateScore() {
         let now = new Date().getTime();
         let dif = Math.round((now - this.timestamp) / (1000 * 60 * 60 * 24));
-        if (dif == 1) {
+        if (dif == 1 || this.score == 0 ) {
             this.score++;
         } else if (dif > 2) {
             this.score = 1;
         }
+
 
         if(this.score > this.record){
             this.record = this.score;
