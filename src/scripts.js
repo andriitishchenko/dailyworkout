@@ -610,7 +610,7 @@ function shareFBuiFeed() {
         link: window.location.href,
 
         title: 'Daily Workout', // The same than name in feed method
-        picture: "https://andriitishchenko.github.io/dailyworkout/web_assets/preview.jpg",
+        picture: "https://andriitishchenko.github.io/dailyworkout/web_assets/preview_1200.jpg",
         caption: message,
         description: "Join me!",
     }, function(response) {
