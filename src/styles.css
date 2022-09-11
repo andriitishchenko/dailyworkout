@@ -56,11 +56,24 @@ body {
     text-align: center;
 }
 
+.start_screen_demo{
+    background-image: url('img/1-0.png');
+    background-position: center;
+    background-size: 70% !important;
 
-.action_demo>div>span{
     color: rgb(195, 95, 80);
     font: bold;
     font-family: 'Raleway', sans-serif;
+    display:table;
+}
+
+.record_title{
+    margin-top: auto;
+    display:table-row;
+}
+
+.score_title{
+    display:table-footer-group;
 }
 
 #progress>div {

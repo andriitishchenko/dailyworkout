@@ -40,7 +40,10 @@
             <div class="centered">
                 <div class="progress-spinner"></div>
                 <div class="action_demo">
-                    <div style="background-image:url('img/1-0.png');background-position-y:20px;"><span>Score: </span><span id="l_score_id">--</span></div>
+                    <div class="start_screen_demo">
+                        <div class="record_title"><span>Your Record: </span><span id="b_score_id">5</span></div>
+                        <div class="score_title"><span>Score: </span><span id="l_score_id">--</span></div>
+                    </div>
                 </div>
             </div>
             <div class="status header_text">Start</div>
@@ -65,22 +68,22 @@
 
     <div id="scene-2" class="hidden scene">
         <div class="content">
-            <div onclick="onCl()" class="header_text scene_title">Start again</div>
-            <div class="centered" onclick="onCl()">
+            <div class="header_text scene_title"><span>Congrats!</span></div>
+            <div class="centered" onclick="onShareFB()">
                 <!-- <div class="progress-spinner"></div>
                 <div class="action_demo">
                     <div style="background-image:url('img/1-0.png');"></div>
                 </div> -->
+                <div class="header_text scene_title">Your Longest duration is <span id="r_score_label">2</span> days</div>
             </div>
-            <div class="header_text scene_title"><span id="score_label"></span> days of continuous training</div>
+            <div class="header_text scene_title">You have <span id="score_label"></span> days of continuous training</div>
             <div class="header_text scene_title" onclick="onShareFB()">Well done, <span>share</span>!</div>
+            <div onclick="onCl()" class="header_text scene_title">Start again</div>
         </div>
     </div>
 
     <script>
         var LAST_ACCESS_TIMESTAMP = new Date().getTime();
-        var SCORE = 1;
-        var isBestScore = false;
 
         window.onload = function() {
             // When the window loads, start to initialize the SDK
@@ -116,8 +119,8 @@
 
         function onShareFB() {
             if (isFacebookInitiated) {
-                var base64image = getScoreImageBase64(SCORE);
-                let message = 'Hey, I have been doing daily workouts for the last ' + SCORE + ' days, join me!';
+                var base64image = getScoreImageBase64(gameScore.score);
+                let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
                 FBInstant.shareAsync({
                     intent: 'REQUEST',
                     image: base64image,
@@ -131,46 +134,30 @@
 
 
         function saveToStorage() {
-            isBestScore = false;
-            let now = new Date().getTime();
-            let dif = Math.round((now - LAST_ACCESS_TIMESTAMP) / (1000 * 60 * 60 * 24));
-            if (dif == 1) {
-                SCORE++;
-                isBestScore = true;
-            } else if (dif > 2) {
-                SCORE = 1;
-            }
-
             var data_object = {
-                LAST_ACCESS_TIMESTAMP: now,
-                SCORE: SCORE,
+                USER_SCORE: gameScore.toJson(),
             };
             FBInstant.player.setDataAsync(data_object)
                 .then(function() {
-                    // console.log(JSON.stringify(data_object));
+                    console.log(JSON.stringify(data_object));
                 }).catch(function(error) {
                     // Data save failed
+                    console.log(error.message);
                 });
         }
 
         function onLoadFromStorage() {
-            FBInstant.player.getDataAsync(["LAST_ACCESS_TIMESTAMP", "SCORE"])
+            FBInstant.player.getDataAsync(["USER_SCORE"])
                 .then(function(data) {
                     // Data loaded successfully
-                    if (data !== undefined && data.LAST_ACCESS_TIMESTAMP !== undefined) {
-                        // console.log("LA=" + data.LAST_ACCESS_TIMESTAMP);
-                        LAST_ACCESS_TIMESTAMP = data.LAST_ACCESS_TIMESTAMP
+                    if (data !== undefined){
+                        gameScore = Score.fromJson(data.USER_SCORE);
                     }
-
-                    if (data !== undefined && data.SCORE !== undefined) {
-                        // console.log("SCORE=" + data.SCORE);
-                        SCORE = data.SCORE
-                    }
-
-                    updateStartScreenScore(SCORE); 
+                    updateStartScreenScore(); 
 
                 }).catch(function(error) {
-                    // Data load failed
+                    console.log("NO USER_SCORE");
+                    console.log(error.message);
                 });
         }
 
@@ -198,10 +185,10 @@
 
 
             // Post to user Page
-            if (isBestScore) {
-                FBInstant.postSessionScoreAsync(SCORE)
+            if (gameScore.isBestScore) {
+                FBInstant.postSessionScoreAsync(gameScore.score)
                     .then(() => {
-                        console.log('Update Posted =' + SCORE);
+                        console.log('Update Posted =' + gameScore.score);
                     });
             }
         }

@@ -406,21 +406,24 @@ class UIManager {
 class Score {
     constructor() {
         this.history = [];
-        this.score = 1;
+        this.score = 0;
+        this.record = 0;
         this.timestamp = new Date().getTime();
+        this.isBestScore = false;
     }
 
     toJson() {
-        return JSON.stringify({ score: this.score, timestamp: this.timestamp, history: this.history });
+        return JSON.stringify({ score: this.score, record:this.record, timestamp: this.timestamp, history: this.history });
     };
 
     static fromJson(json) {
-        var data = JSON.parse(json ? json : null);
+        var data = JSON.parse(json);
         let r = new Score();
         if (data) {
-            r.score = data.score;
-            r.timestamp = data.timestamp;
-            r.history = data.history;
+            r.score = data.score || 0;
+            r.timestamp = data.timestamp || new Date().getTime();
+            r.history = data.history || [];
+            r.record = data.record ?? 0;
         }
         return r;
     }
@@ -440,6 +443,11 @@ class Score {
             this.score++;
         } else if (dif > 2) {
             this.score = 1;
+        }
+
+        if(this.score > this.record){
+            this.record = this.score;
+            this.isBestScore = true;
         }
 
         this.timestamp = new Date().getTime();
@@ -476,16 +484,19 @@ function onCl() {
     soundGenerator.play(Sound.Type.SINE, 0.0);
 }
 
-function updateScoreLayout() {
+function updateFinalScoreLayout() {
     let score_label = document.getElementById("score_label");
-    score_label.innerHTML = isFacebookInitiated ? SCORE.toString() : gameScore.score.toString();
+    score_label.innerHTML = gameScore.score.toString();
+
+    let r_score_label = document.getElementById("r_score_label");
+    r_score_label.innerHTML = gameScore.record.toString();    
 }
 
 
 document.addEventListener('DOMContentLoaded', function() {
 
     gameScore = Score.fromLocalStorage();
-    updateStartScreenScore(gameScore.score);
+    updateStartScreenScore();
 
     
     scenes = new SceneManager(["scene-0", "scene-1", "scene-2"], (scene) => {
@@ -495,7 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gameScore.save();
 
             saveToStorage();
-            updateScoreLayout();
+            updateFinalScoreLayout();
             onPostToLeaderboard();
         }
     });
@@ -503,10 +514,18 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 
-function updateStartScreenScore(val) {
-    // console.log(val);
-    let score_label = document.getElementById("l_score_id");
-    score_label.innerHTML = val?val.toString():"--";
+function updateStartScreenScore() {
+    
+
+    updateLabels = function(score, bestScore){
+        let record_label = document.getElementById("b_score_id");
+        record_label.innerHTML = bestScore?bestScore.toString():"--";
+
+        let score_label = document.getElementById("l_score_id");
+        score_label.innerHTML = score?score.toString():"--";
+    }
+
+    updateLabels(gameScore.score, gameScore.record);    
 }
 
 
@@ -524,7 +543,6 @@ function getScoreImageBase64(score_value = 1) {
 
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgb(220, 220, 210)";
-    // ctx.fillStyle = "rgb(220, 220, 110)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.beginPath();
