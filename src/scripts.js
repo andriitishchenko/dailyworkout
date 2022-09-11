@@ -480,7 +480,9 @@ function updateScoreLayout() {
 document.addEventListener('DOMContentLoaded', function() {
 
     gameScore = Score.fromLocalStorage();
+    updateStartScreenScore(gameScore.score);
 
+    
     scenes = new SceneManager(["scene-0", "scene-1", "scene-2"], (scene) => {
         if (scene == "scene-2") {
             // gameScore.addtoHistory();
@@ -494,6 +496,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     ui = new UIManager();
 }, false);
+
+
+function updateStartScreenScore(val) {
+    // console.log(val);
+    let score_label = document.getElementById("l_score_id");
+    score_label.innerHTML = val?val.toString():"--";
+}
 
 
 function getScoreImageBase64(score_value = 1) {

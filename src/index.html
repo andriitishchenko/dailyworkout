@@ -1,8 +1,18 @@
 <!doctype html>
-
 <html lang="en">
-
 <head>
+        <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MXP0SGYY94"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
+<script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MXP0SGYY94');
+</script>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
@@ -20,26 +30,16 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <link rel="stylesheet" href="styles.css?v=1.0" />
-
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
-    <script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
-
-
     <script src="scripts.js"></script>
-    <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script> -->
-
 </head>
-
 <body>
-
     <div id="scene-0" class="scene">
         <div class="content" onclick="onCl()">
             <div class="header_text scene_title">Daily Workout</div>
             <div class="centered">
                 <div class="progress-spinner"></div>
                 <div class="action_demo">
-                    <div style="background-image:url('img/1-0.png');"></div>
+                    <div style="background-image:url('img/1-0.png');background-position-y:20px;"><span>Score: </span><span id="l_score_id">--</span></div>
                 </div>
             </div>
             <div class="status header_text">Start</div>
@@ -157,14 +157,16 @@
                 .then(function(data) {
                     // Data loaded successfully
                     if (data !== undefined && data.LAST_ACCESS_TIMESTAMP !== undefined) {
-                        console.log("LA=" + data.LAST_ACCESS_TIMESTAMP);
+                        // console.log("LA=" + data.LAST_ACCESS_TIMESTAMP);
                         LAST_ACCESS_TIMESTAMP = data.LAST_ACCESS_TIMESTAMP
                     }
 
                     if (data !== undefined && data.SCORE !== undefined) {
-                        console.log("SCORE=" + data.SCORE);
+                        // console.log("SCORE=" + data.SCORE);
                         SCORE = data.SCORE
                     }
+
+                    updateStartScreenScore(SCORE); 
 
                 }).catch(function(error) {
                     // Data load failed
