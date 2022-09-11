@@ -518,14 +518,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function updateStartScreenScore() {
-    
-
     updateLabels = function(score, bestScore){
         let record_label = document.getElementById("b_score_id");
-        record_label.innerHTML = bestScore?bestScore.toString():"--";
+        record_label.innerHTML = bestScore.toString();
 
         let score_label = document.getElementById("l_score_id");
-        score_label.innerHTML = score?score.toString():"--";
+        score_label.innerHTML = score.toString();
     }
 
     updateLabels(gameScore.score, gameScore.record);    
