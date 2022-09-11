@@ -384,7 +384,12 @@ class UIManager {
     }
 
     updateNextLabel() {
-        this.action_title.innerHTML = "<span>next: </span>" + workouts.nextItemTitle;
+        if(workouts.nextItemTitle){
+            this.action_title.innerHTML = "<span>next: </span>" + workouts.nextItemTitle;
+        }else{
+            this.action_title.innerHTML = "<span>You earned +1 point</span>";
+        }
+        
     }
 
     drawProgress(progress, color = "rgb(168, 193, 77)") {
