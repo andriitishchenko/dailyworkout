@@ -384,12 +384,12 @@ class UIManager {
     }
 
     updateNextLabel() {
-        if(workouts.nextItemTitle){
+        if (workouts.nextItemTitle) {
             this.action_title.innerHTML = "<span>next: </span>" + workouts.nextItemTitle;
-        }else{
+        } else {
             this.action_title.innerHTML = "<span>You earned +1 point</span>";
         }
-        
+
     }
 
     drawProgress(progress, color = "rgb(168, 193, 77)") {
@@ -413,18 +413,18 @@ class Score {
     }
 
     toJson() {
-        return JSON.stringify({ score: this.score, record:this.record, timestamp: this.timestamp, history: this.history });
+        return JSON.stringify({ score: this.score, record: this.record, timestamp: this.timestamp, history: this.history });
     };
 
     static fromJson(json) {
         let r = new Score();
-        if( json ){
+        if (json) {
             let data = JSON.parse(json);
             if (data) {
                 r.score = data.score || 0;
                 r.timestamp = data.timestamp || new Date().getTime();
                 r.history = data.history || [];
-                r.record = data.record ?? 0;
+                r.record = data.record || 0;
             }
         }
         return r;
@@ -441,14 +441,14 @@ class Score {
     updateScore() {
         let now = new Date().getTime();
         let dif = Math.round((now - this.timestamp) / (1000 * 60 * 60 * 24));
-        if (dif == 1 || this.score == 0 ) {
+        if (dif == 1 || this.score == 0) {
             this.score++;
         } else if (dif > 2) {
             this.score = 1;
         }
 
 
-        if(this.score > this.record){
+        if (this.score > this.record) {
             this.record = this.score;
             this.isBestScore = true;
         }
@@ -492,7 +492,7 @@ function updateFinalScoreLayout() {
     score_label.innerHTML = gameScore.score.toString();
 
     let r_score_label = document.getElementById("r_score_label");
-    r_score_label.innerHTML = gameScore.record.toString();    
+    r_score_label.innerHTML = gameScore.record.toString();
 }
 
 
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
     gameScore = Score.fromLocalStorage();
     updateStartScreenScore();
 
-    
+
     scenes = new SceneManager(["scene-0", "scene-1", "scene-2"], (scene) => {
         if (scene == "scene-2") {
             // gameScore.addtoHistory();
@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function updateStartScreenScore() {
-    updateLabels = function(score, bestScore){
+    updateLabels = function(score, bestScore) {
         let record_label = document.getElementById("b_score_id");
         record_label.innerHTML = bestScore.toString();
 
@@ -526,7 +526,7 @@ function updateStartScreenScore() {
         score_label.innerHTML = score.toString();
     }
 
-    updateLabels(gameScore.score, gameScore.record);    
+    updateLabels(gameScore.score, gameScore.record);
 }
 
 
