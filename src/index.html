@@ -1,25 +1,15 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-MXP0SGYY94"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
-<script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-MXP0SGYY94');
-</script>
-
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-
     <title>Daily Workout</title>
     <meta name="description" content="Hey, I have been doing daily workouts for the last several days, join me!" />
     <meta name="author" content="Daily Workout" />
-    <meta property="og:image" content="https://andriitishchenko.github.io/dailyworkout/web_assets/preview_1200.jpg" />
+    <meta property="og:image" content="https://workout.dmn.quest/web_assets/preview_1200.jpg" />
+    <meta name="og:title" content="Daily Workout" />
     <meta property="og:image:alt" content="Hey, I have been doing daily workouts for the last several days, join me!" />
+    <meta property="og:description" content="Hey, I have been doing daily workouts for the last several days, join me!" />
+
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="full-screen" content="yes" />
@@ -31,8 +21,25 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <link rel="stylesheet" href="styles.css?v=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MXP0SGYY94"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1887938272514440" crossorigin="anonymous"></script>
+    <script async defer crossorigin="anonymous" src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-MXP0SGYY94');
+    </script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <script src="scripts.js"></script>
 </head>
+
 <body>
     <div id="scene-0" class="scene">
         <div class="content" onclick="onCl()">
@@ -150,10 +157,10 @@
             FBInstant.player.getDataAsync(["USER_SCORE"])
                 .then(function(data) {
                     // Data loaded successfully
-                    if (data !== undefined){
+                    if (data !== undefined) {
                         gameScore = Score.fromJson(data.USER_SCORE);
                     }
-                    updateStartScreenScore(); 
+                    updateStartScreenScore();
 
                 }).catch(function(error) {
                     console.log("NO USER_SCORE");
