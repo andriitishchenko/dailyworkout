@@ -587,10 +587,10 @@ function checkPermissionWithCallback(onCallback) {
         if (response.status === 'connected') {
             onCallback(response.authResponse.accessToken);
         } else {
-            FB.login(function(response) {
-                console.log(JSON.stringify(response));
-                onCallback(response.authResponse.accessToken);
-            }, { scope: 'publish_actions' });
+            FB.login(function(responseL) {
+                console.log(JSON.stringify(responseL));
+                onCallback(responseL.authResponse.accessToken);
+            }, { scope: 'publish_actions,pages_manage_posts.' });
         }
     });
 }
@@ -630,8 +630,7 @@ function makePostwithToken(t) {
         return;
     }
 
-    console.log("TOCKEN == " + t);
-
+    console.log("TOKEN == " + t);
 
 }
 
@@ -653,28 +652,7 @@ function shareFBuiFeed() {
 
 
 
-    // FB.getLoginStatus(function(response) {
-    //     if (response.status === 'connected') {
-    //         //   console.log(response.authResponse.accessToken);
-    //     } else {
 
-    //     }
-
-    // });
-
-
-    // FB.login(function(response) {
-    //         if (response.session) {
-    //             var access_token = response.session.access_token;
-    //             console.log("accesst = " + access_token);
-    //         } else {
-    //             console.log(('User is logged out');
-    //             }
-    //         });
-
-
-
-    //     return;
 
 
 
@@ -708,8 +686,10 @@ function shareFBuiFeed() {
 // }
 
 
+
+
 function postBlobtoFB(token) {
-    var data = getScoreImageBase64(15);
+    var data = getScoreImageBase64(gameScore.score);
     var blob;
     try {
         var byteString = atob(data.split(',')[1]);
@@ -721,15 +701,33 @@ function postBlobtoFB(token) {
         blob = new Blob([ab], { type: 'image/png' });
     } catch (e) {
         console.log(e);
+        return;
     }
     var fd = new FormData();
     fd.append("source", blob);
     fd.append("message", "Photo Text");
-    FB.login(function() {
-        var auth = FB.getAuthResponse();
 
-        var request = new XMLHttpRequest();
-        request.open("POST", "https://graph.facebook.com/" + auth.userID + "/photos?access_token=" + auth.accessToken);
-        request.send(fd);
-    }, { scope: 'publish_actions' });
+    var request = new XMLHttpRequest();
+    request.open("POST", "https://graph.facebook.com/me/photos?access_token=" + token);
+    request.send(fd);
+    // ====
+
+    FB.api(
+        '/me/feed',
+        'POST', {
+            "message": "Become a Facebook developer!",
+            "link": window.location.origin,
+            "published": "1",
+            "call_to_action": "{\"type\":\"PLAY\",\"value\":{\"link\":\"" + window.location.origin + "\"}}"
+        },
+        function(response) {
+            console.log(JSON.stringify(response));
+        }
+    );
+
+
+    //     curl -F 'link=http://www.example.com' \
+    //     -F 'thumbnail=@/local/path/to/file/on/hard/drive/image.jpg' \
+    //     -F 'access_token=page-access-token'\
+    //  https://graph.facebook.com/v2.11/page-id/feed
 }
