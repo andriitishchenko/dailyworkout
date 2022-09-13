@@ -588,8 +588,12 @@ function checkPermissionWithCallback(onCallback) {
             onCallback(response.authResponse.accessToken);
         } else {
             FB.login(function(responseL) {
-                console.log(JSON.stringify(responseL));
-                onCallback(responseL.authResponse.accessToken);
+                if (response.status === 'connected') {
+                    console.log(JSON.stringify(responseL));
+                    onCallback(responseL.authResponse.accessToken);
+                } else {
+                    console.log("Login failed");
+                }
             }, { scope: 'publish_actions,pages_manage_posts.' });
         }
     });
@@ -647,16 +651,8 @@ function postPhoto(access_token) {
 }
 
 function shareFBuiFeed() {
-    var base64image = getScoreImageBase64(15);
+    var base64image = getScoreImageBase64(gameScore.score);
     let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
-
-
-
-
-
-
-
-
     FB.ui({
         method: 'feed',
         display: 'popup',
