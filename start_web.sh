@@ -5,7 +5,7 @@
 # 
 # ENABLE! chrome://flags/#allow-insecure-localhost
 
-http-server --ssl -c-1 -p 8080 -a 127.0.0.1 src
+http-server --ssl -c-1 -p 8080 -a 127.0.0.1 docs
 
 
 # open https://www.facebook.com/embed/instantgames/2184426505072200/player?game_url=https://localhost:8080
