@@ -5,6 +5,9 @@
 # 
 # ENABLE! chrome://flags/#allow-insecure-localhost
 
+## Gen cert 
+# openssl req -x509 -days 1000 -new -key key.pem -out cert.pem
+
 http-server --ssl -c-1 -p 8080 -a 127.0.0.1 docs
 
 

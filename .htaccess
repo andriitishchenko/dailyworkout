@@ -46,7 +46,7 @@ RewriteRule ^(.*)$ /e.php [L]
 # # 
 # # 
 <IfModule mod_negotiation.c>
-	#Options -MultiViews
+	Options -MultiViews
 </IfModule>
 
 
