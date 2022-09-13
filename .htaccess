@@ -1,9 +1,30 @@
-# Powered by Site.pro
+ErrorDocument 400 /400
+ErrorDocument 401 /401
+ErrorDocument 403 /403
+ErrorDocument 404 /404
+ErrorDocument 503 /503
+
+php_flag display_startup_errors on
+php_flag display_errors on
+php_flag html_errors on
+php_flag log_errors on
+php_value error_log /workout.dmn.quest/htdocs/PHP_errors.log
+php_flag opcache.enable Off
+
+RewriteEngine On
+
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} ^/400$ [OR]
+RewriteCond %{REQUEST_URI} ^/401$ [OR]
+RewriteCond %{REQUEST_URI} ^/403$ [OR]
+RewriteCond %{REQUEST_URI} ^/404$ [OR]
+RewriteCond %{REQUEST_URI} ^/503$
+RewriteRule ^(.*)$ /e.php [L]
 
 <IfModule pagespeed_module>
 	ModPagespeed off
 </IfModule>
-
 <IfModule mod_expires.c>
 	ExpiresActive On
 	ExpiresDefault A0
@@ -14,7 +35,6 @@
 	ExpiresByType text/javascript A691200
 	ExpiresByType application/javascript A691200
 </IfModule>
-
 <FilesMatch "^(web\.config)$">
 	<IfModule mod_authz_core.c>
 		Require all denied
@@ -23,27 +43,21 @@
 		Order allow,deny
 	</IfModule>
 </FilesMatch>
-ErrorDocument 401 "Unauthorized"
-ErrorDocument 403 "Forbidden"
+# # 
+# # 
 <IfModule mod_negotiation.c>
 	#Options -MultiViews
 </IfModule>
-RewriteEngine On
-RewriteBase /
-RewriteRule ^\.well-known/.+ - [L]
-
-#### PERSISTENT CONTENT ####
 
 
-
-#### PERSISTENT CONTENT END ####
-
-DirectoryIndex index.php index.cgi index.html
-RewriteCond %{REQUEST_FILENAME} !-f [OR]
-RewriteCond %{REQUEST_URI} ^\/(js\/(main\.js|boostrap\.min\.js)|css\/(\d+\.css|common\.css|site\.css|bootstrap\.min\.css))$
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ src/$1 [L,QSA]
-
-
-#### PERSISTENT CONTENT ####
-
+# # RewriteEngine On
+# # RewriteBase /
+# # RewriteRule ^\.well-known/.+ - [L]
+# #### PERSISTENT CONTENT ####
+# #### PERSISTENT CONTENT END ####
+# # DirectoryIndex index.php index.cgi index.html
+# # RewriteCond %{REQUEST_FILENAME} !-f [OR]
+# # RewriteCond %{REQUEST_URI} ^\/(js\/(main\.js|boostrap\.min\.js)|css\/(\d+\.css|common\.css|site\.css|bootstrap\.min\.css))$
+# # RewriteCond %{REQUEST_FILENAME} !-d
+# # RewriteRule ^(.*)$ src/$1 [L,QSA]
+# #### PERSISTENT CONTENT ####
