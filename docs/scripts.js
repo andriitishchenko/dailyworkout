@@ -479,11 +479,10 @@ let ui = null;
 
 
 var isFacebookInitiated = false;
-var isFacebookInjected = false;
 
 
 function onCl() {
-    scenes.showScene(1);
+    scenes.showScene(2);
     soundGenerator.play(Sound.Type.SINE, 0.0);
 }
 
@@ -582,35 +581,60 @@ function getScoreImageBase64(score_value = 1) {
     return value;
 }
 
+
+function checkPermissionWithCallback(onCallback) {
+    FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+            onCallback(response.authResponse.accessToken);
+        } else {
+            FB.login(function(response) {
+                console.log(JSON.stringify(response));
+                onCallback(response.authResponse.accessToken);
+            }, { scope: 'publish_actions' });
+        }
+    });
+}
+
+
 function addFBScript() {
-    if (isFacebookInjected) {
-        shareFBuiFeed()
-            // shareFBui();
+
+    if (!window.fbAsyncInit) {
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: '2184426505072200',
+                autoLogAppEvents: true,
+                cookie: true,
+                xfbml: true,
+                version: 'v14.0'
+            });
+            checkPermissionWithCallback(makePostwithToken);
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    } else {
+        checkPermissionWithCallback(makePostwithToken);
+    }
+
+}
+
+function makePostwithToken(t) {
+    if (!t) {
+        console.log("NO TOCKEN, exit");
         return;
     }
 
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.crossorigin = "anonymous";
-    script.setAttributeNode(document.createAttribute("async"));
-    script.setAttributeNode(document.createAttribute("defer"));
-    document.head.appendChild(script);
-
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId: '2184426505072200',
-            autoLogAppEvents: true,
-            xfbml: true,
-            version: 'v14.0'
-        })
+    console.log("TOCKEN == " + t);
 
 
-        shareFBuiFeed()
-            // shareFBui()
-            // postBlobtoFB()
-    };
 }
+
 
 function shareFBui() {
     FB.ui({
@@ -619,9 +643,41 @@ function shareFBui() {
     }, function(response) {});
 }
 
+function postPhoto(access_token) {
+
+}
+
 function shareFBuiFeed() {
-    // var base64image = getScoreImageBase64(15);
+    var base64image = getScoreImageBase64(15);
     let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
+
+
+
+    // FB.getLoginStatus(function(response) {
+    //     if (response.status === 'connected') {
+    //         //   console.log(response.authResponse.accessToken);
+    //     } else {
+
+    //     }
+
+    // });
+
+
+    // FB.login(function(response) {
+    //         if (response.session) {
+    //             var access_token = response.session.access_token;
+    //             console.log("accesst = " + access_token);
+    //         } else {
+    //             console.log(('User is logged out');
+    //             }
+    //         });
+
+
+
+    //     return;
+
+
+
 
     FB.ui({
         method: 'feed',
@@ -652,7 +708,7 @@ function shareFBuiFeed() {
 // }
 
 
-function postBlobtoFB() {
+function postBlobtoFB(token) {
     var data = getScoreImageBase64(15);
     var blob;
     try {
