@@ -594,7 +594,7 @@ function checkPermissionWithCallback(onCallback) {
                 } else {
                     console.log("Login failed");
                 }
-            }, { scope: 'publish_actions,pages_manage_posts.' });
+            }, { scope: 'publish_actions,pages_manage_posts' });
         }
     });
 }
@@ -630,12 +630,11 @@ function addFBScript() {
 
 function makePostwithToken(t) {
     if (!t) {
-        console.log("NO TOCKEN, exit");
+        console.log("NO TOKEN, exit");
         return;
     }
-
     console.log("TOKEN == " + t);
-
+    postBlobtoFB(t);
 }
 
 
@@ -643,19 +642,17 @@ function shareFBui() {
     FB.ui({
         method: 'share',
         href: window.location.origin,
-    }, function(response) {});
-}
-
-function postPhoto(access_token) {
-
+    }, function(response) {
+        console.log(response);
+    });
 }
 
 function shareFBuiFeed() {
-    var base64image = getScoreImageBase64(gameScore.score);
+    // var base64image = getScoreImageBase64(gameScore.score);
     let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
     FB.ui({
         method: 'feed',
-        display: 'popup',
+        // display: 'popup',
         link: window.location.origin,
 
         title: 'Daily Workout', // The same than name in feed method
@@ -682,8 +679,6 @@ function shareFBuiFeed() {
 // }
 
 
-
-
 function postBlobtoFB(token) {
     var data = getScoreImageBase64(gameScore.score);
     var blob;
@@ -702,28 +697,12 @@ function postBlobtoFB(token) {
     var fd = new FormData();
     fd.append("source", blob);
     fd.append("message", "Photo Text");
+    fd.append("access_token", token);
 
-    var request = new XMLHttpRequest();
-    request.open("POST", "https://graph.facebook.com/me/photos?access_token=" + token);
-    request.send(fd);
-    // ====
-
-    FB.api(
-        '/me/feed',
-        'POST', {
-            "message": "Become a Facebook developer!",
-            "link": window.location.origin,
-            "published": "1",
-            "call_to_action": "{\"type\":\"PLAY\",\"value\":{\"link\":\"" + window.location.origin + "\"}}"
-        },
-        function(response) {
-            console.log(JSON.stringify(response));
-        }
-    );
-
-
-    //     curl -F 'link=http://www.example.com' \
-    //     -F 'thumbnail=@/local/path/to/file/on/hard/drive/image.jpg' \
-    //     -F 'access_token=page-access-token'\
-    //  https://graph.facebook.com/v2.11/page-id/feed
+    fetch('https://graph.facebook.com/me/photos', {
+            method: 'POST',
+            body: fd,
+        })
+        .then(res => res.json())
+        .then(data => console.log(data))
 }
