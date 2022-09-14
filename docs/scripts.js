@@ -477,9 +477,7 @@ let soundGenerator = new Sound();
 let scenes = null;
 let ui = null;
 
-
 var isFacebookInitiated = false;
-
 
 function onCl() {
     scenes.showScene(2);
@@ -633,28 +631,29 @@ function makePostwithToken(t) {
         console.log("NO TOKEN, exit");
         return;
     }
-    console.log("TOKEN == " + t);
+    // console.log("TOKEN == " + t);
+    console.log("TOKEN :: OK");
     postBlobtoFB(t);
+
+    shareFBuiFeed();
 }
 
 
-function shareFBui() {
-    FB.ui({
-        method: 'share',
-        href: window.location.origin,
-    }, function(response) {
-        console.log(response);
-    });
-}
+// function shareFBui() {
+//     FB.ui({
+//         method: 'share',
+//         href: window.location.origin,
+//     }, function(response) {
+//         console.log(response);
+//     });
+// }
 
 function shareFBuiFeed() {
-    // var base64image = getScoreImageBase64(gameScore.score);
     let message = 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!';
     FB.ui({
         method: 'feed',
-        // display: 'popup',
+        display: 'popup',
         link: window.location.origin,
-
         title: 'Daily Workout', // The same than name in feed method
         picture: window.location.origin + "/web_assets/preview_1200.jpg",
         caption: message,
@@ -680,6 +679,7 @@ function shareFBuiFeed() {
 
 
 function postBlobtoFB(token) {
+    // this method will uplaod image as "Game screenshot"
     var data = getScoreImageBase64(gameScore.score);
     var blob;
     try {
