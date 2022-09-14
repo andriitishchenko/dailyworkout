@@ -592,7 +592,7 @@ function checkPermissionWithCallback(onCallback) {
                 } else {
                     console.log("Login failed");
                 }
-            }, { scope: 'publish_actions,pages_manage_posts' });
+            }, { scope: 'publish_actions' });
         }
     });
 }
