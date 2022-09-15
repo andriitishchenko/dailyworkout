@@ -654,13 +654,34 @@ function shareFBuiFeed() {
         method: 'feed',
         display: 'popup',
         link: window.location.origin,
-        title: 'Daily Workout', // The same than name in feed method
+        title: 'Daily Workout',
         picture: window.location.origin + "/web_assets/preview_1200.jpg",
         caption: message,
         description: "Join me!",
     }, function(response) {
         console.log(response);
     });
+
+
+
+    /*
+        ## Sharing from the app (not works until Aproved by fb)
+     FB.ui({
+            method: 'share',
+            display: 'popup',media: ["http://dmn.quest/score-448.jpeg"],
+            link: window.location.origin,
+            title: 'Daily Workout', // The same than name in feed method
+            //picture:"http://dmn.quest/score-4.jpeg",
+            message: 'Hey, I have been doing daily workouts for the last ' + gameScore.score + ' days, join me!',
+            description: "Join me!",
+        }, function(response) {
+            console.log(response);
+        });
+
+    */
+
+
+
 }
 
 
